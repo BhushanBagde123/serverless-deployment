@@ -1,51 +1,43 @@
-const API_URL="PASTE_YOUR_API_GATEWAY_URL_HERE";
+const API_URL = "https://ylxj8dvpuh.execute-api.us-east-1.amazonaws.com/prod/feedback";
 
-async function submitFeedback(){
+async function submitFeedback() {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const message = document.getElementById("message").value.trim();
 
-const name=document.getElementById("name").value;
-const email=document.getElementById("email").value;
-const message=document.getElementById("message").value;
+    if (!name || !email || !message) {
+        alert("Please fill all fields.");
+        return;
+    }
 
-await fetch(API_URL,{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-name,
-email,
-message
-})
-});
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                message: message
+            })
+        });
 
-alert("Feedback Submitted");
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
 
-loadFeedback();
+        const data = await response.json();
 
+        alert(data.message);
+
+        // Clear form
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("message").value = "";
+
+    } catch (error) {
+        console.error(error);
+        alert("Failed to submit feedback.");
+    }
 }
-
-async function loadFeedback(){
-
-const response=await fetch(API_URL);
-
-const data=await response.json();
-
-const list=document.getElementById("feedbackList");
-
-list.innerHTML="";
-
-data.forEach(item=>{
-
-list.innerHTML+=`
-<div class="feedback">
-<h3>${item.name}</h3>
-<p>${item.email}</p>
-<p>${item.message}</p>
-</div>
-`;
-
-});
-
-}
-
-loadFeedback();
